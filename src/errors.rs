@@ -13,6 +13,9 @@ pub enum SecGuardError {
     #[error("JSON parse error: {0}")]
     Json(#[from] serde_json::Error),
 
+    #[error("WalkDir error: {0}")]
+    Walk(#[from] walkdir::Error),
+
     #[error("CLI argument error: {0}")]
     Cli(String),
 

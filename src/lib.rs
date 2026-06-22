@@ -1,6 +1,7 @@
 pub mod cli;
 pub mod detections;
 pub mod errors;
+pub mod integrity;
 pub mod models;
 pub mod parsers;
 pub mod time_utils;
