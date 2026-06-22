@@ -1,5 +1,9 @@
 pub mod cli;
 pub mod errors;
+pub mod models;
+pub mod parsers;
+pub mod time_utils;
+pub mod validation;
 
 pub use errors::SecGuardError;
 
