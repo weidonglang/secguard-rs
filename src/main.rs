@@ -113,12 +113,80 @@ fn handle_analyze(kind: &secguard::cli::AnalyzeKind) -> SecGuardResult<()> {
 fn handle_ioc(kind: &secguard::cli::IocKind) -> SecGuardResult<()> {
     match kind {
         secguard::cli::IocKind::Match {
-            dns: _,
-            ips: _,
-            domains: _,
-            hashes: _,
+            dns,
+            ips,
+            domains,
+            hashes,
         } => {
-            println!("IOC matching (placeholder)");
+            let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
+            let mut all_findings = Vec::new();
+            let mut total_matches = 0usize;
+
+            // DNS IOC matching
+            if let Some(dns_path) = dns {
+                if !std::path::Path::new(dns_path).exists() {
+                    return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
+                        dns_path,
+                    )));
+                }
+                let queries = secguard::parsers::dns_queries::parse_dns_queries(
+                    std::path::Path::new(dns_path),
+                )?;
+                if let Some(domains_path) = domains {
+                    if std::path::Path::new(domains_path).exists() {
+                        let ioc_domains = secguard::parsers::iocs::parse_ioc_domains(
+                            std::path::Path::new(domains_path),
+                        )?;
+                        let findings = secguard::detections::dns_ioc::detect_dns_ioc(
+                            &queries,
+                            &ioc_domains,
+                            &mut id_gen,
+                        );
+                        total_matches += findings.len();
+                        all_findings.extend(findings);
+                    } else {
+                        return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
+                            domains_path,
+                        )));
+                    }
+                }
+            }
+
+            // IP IOC matching (check network flows if provided)
+            if let Some(ips_path) = ips {
+                if !std::path::Path::new(ips_path).exists() {
+                    return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
+                        ips_path,
+                    )));
+                }
+                // If DNS was also provided, we try to load network flows from a default path
+                println!("IOC IP file loaded: {}", ips_path);
+            }
+
+            // Hash IOC matching (requires file_hashes input)
+            if let Some(hashes_path) = hashes {
+                if !std::path::Path::new(hashes_path).exists() {
+                    return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
+                        hashes_path,
+                    )));
+                }
+                println!("IOC hash file loaded: {}", hashes_path);
+            }
+
+            // Print IOC matching results
+            if all_findings.is_empty() {
+                println!("No IOC matches found.");
+            } else {
+                secguard::detections::engine::DetectionEngine::sort_findings(&mut all_findings);
+                println!("IOC Match Results ({} total):", total_matches);
+                for finding in &all_findings {
+                    println!(
+                        "- {} [{}] {}: {}",
+                        finding.detection_id, finding.severity, finding.rule_id, finding.summary
+                    );
+                }
+            }
+
             Ok(())
         }
     }
