@@ -1,0 +1,84 @@
+{
+  "rules": [
+    {
+      "rule_id": "SG-AUTH-001",
+      "name": "Brute Force Login",
+      "description": "Detects multiple failed login attempts from the same source IP and user within a time window.",
+      "severity": "high",
+      "category": "authentication",
+      "data_source": "auth_events"
+    },
+    {
+      "rule_id": "SG-AUTH-002",
+      "name": "Password Spray",
+      "description": "Detects a single source IP attempting logins against multiple users.",
+      "severity": "high",
+      "category": "authentication",
+      "data_source": "auth_events"
+    },
+    {
+      "rule_id": "SG-WIN-001",
+      "name": "Suspicious PowerShell Encoded Command",
+      "description": "Detects PowerShell commands using encoded command execution patterns.",
+      "severity": "high",
+      "category": "windows",
+      "data_source": "windows_events"
+    },
+    {
+      "rule_id": "SG-NET-001",
+      "name": "Blocked Outbound Burst",
+      "description": "Detects high volume of blocked outbound network connections from a single host.",
+      "severity": "medium",
+      "category": "network",
+      "data_source": "network_flows"
+    },
+    {
+      "rule_id": "SG-NET-002",
+      "name": "High Data Egress",
+      "description": "Detects network flows with unusually high outbound data transfer.",
+      "severity": "medium",
+      "category": "network",
+      "data_source": "network_flows"
+    },
+    {
+      "rule_id": "SG-DNS-001",
+      "name": "IOC Domain Match",
+      "description": "Detects DNS queries matching known malicious domains from IOC feed.",
+      "severity": "high",
+      "category": "dns",
+      "data_source": "dns_queries"
+    },
+    {
+      "rule_id": "SG-IP-001",
+      "name": "IOC IP Match",
+      "description": "Detects network traffic to known malicious IP addresses from IOC feed.",
+      "severity": "high",
+      "category": "network",
+      "data_source": "network_flows"
+    },
+    {
+      "rule_id": "SG-HASH-001",
+      "name": "IOC Hash Match",
+      "description": "Detects files with SHA256 hashes matching known malicious hashes from IOC feed.",
+      "severity": "critical",
+      "category": "integrity",
+      "data_source": "file_hashes"
+    },
+    {
+      "rule_id": "SG-FIM-001",
+      "name": "File Modified",
+      "description": "Detects files whose current SHA256 hash differs from baseline.",
+      "severity": "medium",
+      "category": "integrity",
+      "data_source": "integrity"
+    },
+    {
+      "rule_id": "SG-FIM-002",
+      "name": "File Missing",
+      "description": "Detects files present in baseline but missing from current path.",
+      "severity": "high",
+      "category": "integrity",
+      "data_source": "integrity"
+    }
+  ]
+}
