@@ -1,0 +1,13 @@
+indicator,severity,description
+203.0.113.5,high,Known malicious IP - C2 server
+203.0.113.6,high,Known malicious IP - malware distribution
+198.51.100.20,medium,Suspicious IP - scanning activity
+198.51.100.30,medium,Suspicious IP - data exfiltration
+203.0.113.10,high,Known malicious IP - phishing host
+203.0.113.20,medium,Suspicious IP - brute force attempts
+203.0.113.30,medium,Suspicious IP - cryptominer pool
+203.0.113.40,high,Known malicious IP - data exfil
+198.51.100.50,low,Suspicious IP - no PTR record
+198.51.100.70,medium,Suspicious IP - malware C2
+203.0.113.50,medium,Suspicious IP - link shortener abuse
+198.51.100.80,high,Known malicious IP - exfiltration target

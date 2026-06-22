@@ -1,0 +1,2 @@
+flow_id,timestamp,src_host,src_ip,src_port,dst_ip,dst_port,protocol,bytes_out,bytes_in,action,process
+F001,2025-06-01T08:15:00Z,host-with-very-long-name-that-might-cause-buffer-overflow-issues-in-some-parsers.example.corp.internal.network,192.168.1.10,12345,10.0.0.1,443,TCP,1000,5000,allow,/usr/local/bin/very-long-process-name-that-might-exceed-buffer-limits-and-cause-unexpected-behavior-in-unsafe-parsers-or-those-with-fixed-size-buffers-this-is-a-test-of-long-line-handling-capabilities

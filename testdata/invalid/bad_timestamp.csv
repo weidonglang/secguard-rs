@@ -1,0 +1,2 @@
+event_id,timestamp,source_host,user,source_ip,action,auth_method,status,reason
+EVT001,not-a-timestamp,host1,user1,192.168.1.1,login,password,failure,bad_password
