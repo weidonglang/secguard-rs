@@ -43,6 +43,9 @@ pub enum SecGuardError {
     #[error("Schema error: {0}")]
     Schema(String),
 
+    #[error("Parse error: {0}")]
+    ParseError(String),
+
     #[error("{0}")]
     Msg(String),
 }

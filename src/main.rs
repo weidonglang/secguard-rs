@@ -39,11 +39,33 @@ fn handle_schema(kind: &secguard::cli::SchemaKind) -> SecGuardResult<()> {
 
 fn handle_analyze(kind: &secguard::cli::AnalyzeKind) -> SecGuardResult<()> {
     match kind {
-        secguard::cli::AnalyzeKind::Auth { input, output: _ } => {
-            if !std::path::Path::new(input).exists() {
+        secguard::cli::AnalyzeKind::Auth { input, output } => {
+            let input_path = std::path::Path::new(input);
+            if !input_path.exists() {
                 return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
             }
-            println!("Analyze auth: {}", input);
+            let events = secguard::parsers::auth_events::parse_auth_events(input_path)?;
+            let config = secguard::models::Config::default();
+            let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
+            let mut findings = secguard::detections::brute_force::run_auth_detections(
+                &events,
+                &config,
+                &mut id_gen,
+            );
+            secguard::detections::engine::DetectionEngine::sort_findings(&mut findings);
+            let summary = secguard::models::ReportSummary::new(input.to_string(), findings);
+            let report = secguard::reports::markdown::generate_markdown_report(&summary)?;
+            if let Some(out_path) = output {
+                if let Some(parent) = std::path::Path::new(out_path).parent() {
+                    if !parent.as_os_str().is_empty() && !parent.exists() {
+                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
+                    }
+                }
+                std::fs::write(out_path, report)?;
+                println!("Report written to: {}", out_path);
+            } else {
+                println!("{}", report);
+            }
             Ok(())
         }
         secguard::cli::AnalyzeKind::Network { input, output } => {
@@ -286,13 +308,26 @@ fn handle_report(kind: &secguard::cli::ReportKind) -> SecGuardResult<()> {
     match kind {
         secguard::cli::ReportKind::Summarize {
             input,
-            format: _,
-            output: _,
+            format,
+            output,
         } => {
-            if !std::path::Path::new(input).exists() {
+            let input_path = std::path::Path::new(input);
+            if !input_path.exists() {
                 return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
             }
-            println!("Report summarize: {}", input);
+            let fmt = format.as_deref().unwrap_or("markdown");
+            let report = secguard::reports::summary::generate_summary(input_path, fmt)?;
+            if let Some(out_path) = output {
+                if let Some(parent) = std::path::Path::new(out_path).parent() {
+                    if !parent.as_os_str().is_empty() && !parent.exists() {
+                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
+                    }
+                }
+                std::fs::write(out_path, report)?;
+                println!("Summary report written to: {}", out_path);
+            } else {
+                println!("{}", report);
+            }
             Ok(())
         }
     }

@@ -4,6 +4,7 @@ pub mod errors;
 pub mod integrity;
 pub mod models;
 pub mod parsers;
+pub mod reports;
 pub mod time_utils;
 pub mod validation;
 
