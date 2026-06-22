@@ -1,3 +1,5 @@
 flow_id,timestamp,src_host,src_ip,src_port,dst_ip,dst_port,protocol,bytes_out,bytes_in,action,process
-F001,2025-06-01T08:15:00Z,test-host,192.168.1.10,12345,10.0.0.1,443,TCP,1000,5000,allow,test.exe
-F002,2025-06-01T08:16:00Z,test-host,192.168.1.10,12346,10.0.0.2,53,UDP,200,400,allow,dns.exe
+NF001,2025-06-01T08:15:00Z,test-host,192.168.1.10,12345,10.0.0.1,443,TCP,1000,5000,allow,test.exe
+NF002,2025-06-01T08:16:00Z,test-host,192.168.1.10,12346,10.0.0.2,53,UDP,200,400,allow,dns.exe
+NF003,2025-06-01T08:20:00Z,server-01,10.0.0.5,54321,203.0.113.50,443,TCP,150000000,2000,allow,data_export.exe
+NF004,2025-06-01T08:25:00Z,server-01,10.0.0.5,54322,203.0.113.51,443,TCP,50000,1000,block,blocked_app.exe
