@@ -1,0 +1,3 @@
+indicator,severity,description
+evil-domain.test.com,high,Test IOC domain
+malware-c2.example.net,high,Test C2 domain

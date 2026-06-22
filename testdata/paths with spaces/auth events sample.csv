@@ -1,0 +1,2 @@
+event_id,timestamp,source_host,user,source_ip,action,auth_method,status,reason
+EVT001,2025-06-01T08:15:00Z,host1,admin,192.168.1.100,login,password,failure,bad_password

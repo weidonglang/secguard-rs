@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "analysis": {
+    "brute_force_threshold": 5,
+    "brute_force_window_minutes": 10,
+    "password_spray_threshold": 5,
+    "password_spray_window_minutes": 10,
+    "blocked_outbound_threshold": 10,
+    "blocked_outbound_window_minutes": 15,
+    "high_data_egress_bytes": 100000000
+  },
+  "paths": {
+    "auth_events": "examples/auth_events.csv",
+    "network_flows": "examples/network_flows.csv",
+    "dns_queries": "examples/dns_queries.csv",
+    "windows_events": "examples/windows_events.csv",
+    "file_hashes": "examples/file_hashes.csv",
+    "ioc_domains": "examples/ioc_domains.csv",
+    "ioc_ips": "examples/ioc_ips.csv",
+    "ioc_hashes": "examples/ioc_hashes.csv"
+  },
+  "severity_order": ["info", "low", "medium", "high", "critical"],
+  "report": {
+    "generated_by": "SecGuard RS",
+    "include_findings": true,
+    "sort_by": ["severity", "timestamp", "rule_id"]
+  }
+}

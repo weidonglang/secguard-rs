@@ -1,0 +1,11 @@
+indicator,severity,description
+malware-c2.example.net,high,Known malware command and control domain
+evil-domain.test.com,high,Suspicious domain associated with phishing campaigns
+phishing-attempt.net,medium,Reported phishing domain
+cryptominer-pool.xyz,medium,Cryptocurrency mining pool domain
+data-exfil.evil.com,high,Data exfiltration domain
+malware-update.xyz,medium,Suspicious malware update distribution domain
+suspicious.link.net,medium,Reported malicious link shortener
+exfiltration-target.com,high,Known data exfiltration target
+spam-domain.biz,low,Reported spam domain
+unknown-host.bad.net,medium,Domain with no legitimate resolution

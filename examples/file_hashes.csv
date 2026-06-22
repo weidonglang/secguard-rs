@@ -1,0 +1,13 @@
+path,sha256,size_bytes,modified_utc
+examples/auth_events.csv,a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1,2500,2025-06-01T08:00:00Z
+examples/network_flows.csv,b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2,3200,2025-06-01T08:00:00Z
+examples/dns_queries.csv,c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3,1800,2025-06-01T08:00:00Z
+examples/windows_events.csv,d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4,4500,2025-06-01T08:00:00Z
+README.md,e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5,500,2025-06-01T08:00:00Z
+VERSION,f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6,10,2025-06-01T08:00:00Z
+Cargo.toml,a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7,800,2025-06-01T08:00:00Z
+src/main.rs,b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8,300,2025-06-01T08:00:00Z
+src/lib.rs,c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9,400,2025-06-01T08:00:00Z
+src/cli.rs,d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0,2500,2025-06-01T08:00:00Z
+docs/security_boundaries.md,e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1,2000,2025-06-01T08:00:00Z
+rules/builtin_rules.json,f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2,1500,2025-06-01T08:00:00Z

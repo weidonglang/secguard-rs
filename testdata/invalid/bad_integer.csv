@@ -1,0 +1,2 @@
+flow_id,timestamp,src_host,src_ip,src_port,dst_ip,dst_port,protocol,bytes_out,bytes_in,action,process
+F001,2025-06-01T08:15:00Z,test-host,192.168.1.10,not_a_number,10.0.0.1,443,TCP,1000,5000,allow,test.exe
