@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod detections;
 pub mod errors;
 pub mod models;
 pub mod parsers;
