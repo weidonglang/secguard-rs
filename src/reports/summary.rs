@@ -1,9 +1,9 @@
 use crate::errors::SecGuardError;
 use crate::models::Detection;
+use crate::models::ReportSummary;
 use crate::reports::csv::generate_csv_report;
 use crate::reports::json::generate_json_report;
 use crate::reports::markdown::generate_markdown_report;
-use crate::models::ReportSummary;
 use std::io::Read;
 use std::path::Path;
 
@@ -36,17 +36,19 @@ fn read_file_to_string(path: &Path) -> Result<String, SecGuardError> {
         )));
     }
     let mut file = std::fs::File::open(path).map_err(|e| {
-        SecGuardError::Io(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("Cannot open {}: {}", path.display(), e),
-        ))
+        SecGuardError::Io(std::io::Error::other(format!(
+            "Cannot open {}: {}",
+            path.display(),
+            e
+        )))
     })?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).map_err(|e| {
-        SecGuardError::Io(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("Cannot read {}: {}", path.display(), e),
-        ))
+        SecGuardError::Io(std::io::Error::other(format!(
+            "Cannot read {}: {}",
+            path.display(),
+            e
+        )))
     })?;
     Ok(contents)
 }
@@ -99,9 +101,8 @@ fn parse_csv_findings(data: &str) -> Result<Vec<Detection>, SecGuardError> {
 
     let mut findings = Vec::new();
     for result in reader.deserialize() {
-        let detection: Detection = result.map_err(|e| {
-            SecGuardError::ParseError(format!("CSV row parse error: {}", e))
-        })?;
+        let detection: Detection =
+            result.map_err(|e| SecGuardError::ParseError(format!("CSV row parse error: {}", e)))?;
         findings.push(detection);
     }
     Ok(findings)
@@ -110,8 +111,8 @@ fn parse_csv_findings(data: &str) -> Result<Vec<Detection>, SecGuardError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use std::io::Write;
+    use tempfile::TempDir;
 
     fn create_temp_file(content: &str) -> (TempDir, std::path::PathBuf) {
         let dir = TempDir::new().unwrap();
@@ -123,7 +124,8 @@ mod tests {
 
     #[test]
     fn test_summary_csv_empty() {
-        let header = "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation\n";
+        let header =
+            "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation\n";
         let (_dir, path) = create_temp_file(header);
         let result = generate_summary(&path, "markdown").unwrap();
         assert!(result.contains("No detections found"));
@@ -175,7 +177,8 @@ mod tests {
 
     #[test]
     fn test_summary_default_format_markdown() {
-        let content = "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation\n";
+        let content =
+            "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation\n";
         let (_dir, path) = create_temp_file(content);
         let result = generate_summary(&path, "markdown").unwrap();
         assert!(result.starts_with("# SecGuard RS"));

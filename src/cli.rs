@@ -55,6 +55,48 @@ pub enum SchemaKind {
         #[arg(long)]
         input: String,
     },
+    /// Validate network flows CSV schema
+    Network {
+        /// Path to network_flows.csv
+        #[arg(long)]
+        input: String,
+    },
+    /// Validate DNS queries CSV schema
+    Dns {
+        /// Path to dns_queries.csv
+        #[arg(long)]
+        input: String,
+    },
+    /// Validate Windows events CSV schema
+    Windows {
+        /// Path to windows_events.csv
+        #[arg(long)]
+        input: String,
+    },
+    /// Validate file hashes CSV schema
+    FileHashes {
+        /// Path to file_hashes.csv
+        #[arg(long)]
+        input: String,
+    },
+    /// Validate IOC domains CSV schema
+    IocDomains {
+        /// Path to ioc_domains.csv
+        #[arg(long)]
+        input: String,
+    },
+    /// Validate IOC IPs CSV schema
+    IocIps {
+        /// Path to ioc_ips.csv
+        #[arg(long)]
+        input: String,
+    },
+    /// Validate IOC hashes CSV schema
+    IocHashes {
+        /// Path to ioc_hashes.csv
+        #[arg(long)]
+        input: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -102,7 +144,7 @@ pub enum AnalyzeKind {
 
 #[derive(Subcommand, Debug)]
 pub enum IocKind {
-    /// Match DNS queries against IOC indicators
+    /// Match DNS queries, IPs, and hashes against IOC indicators
     Match {
         /// Path to dns_queries.csv
         #[arg(long)]

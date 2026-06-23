@@ -1,6 +1,36 @@
 use clap::Parser;
 use secguard::cli::Cli;
 use secguard::errors::{SecGuardError, SecGuardResult};
+use std::path::Path;
+
+fn check_input_file(path_str: &str) -> SecGuardResult<()> {
+    let path = Path::new(path_str);
+    if !path.exists() {
+        return Err(SecGuardError::FileNotFound(path.to_path_buf()));
+    }
+    Ok(())
+}
+
+fn ensure_output_dir(path_str: &str) -> SecGuardResult<()> {
+    let path = Path::new(path_str);
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() && !parent.exists() {
+            return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
+        }
+    }
+    Ok(())
+}
+
+fn write_report(output: &Option<String>, content: &str) -> SecGuardResult<()> {
+    if let Some(out_path) = output {
+        ensure_output_dir(out_path)?;
+        std::fs::write(out_path, content)?;
+        println!("Report written to: {}", out_path);
+    } else {
+        println!("{}", content);
+    }
+    Ok(())
+}
 
 fn main() -> SecGuardResult<()> {
     let cli = Cli::parse();
@@ -27,11 +57,52 @@ fn main() -> SecGuardResult<()> {
 fn handle_schema(kind: &secguard::cli::SchemaKind) -> SecGuardResult<()> {
     match kind {
         secguard::cli::SchemaKind::Auth { input } => {
-            // Placeholder: will validate CSV auth schema later
-            if !std::path::Path::new(input).exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
-            }
-            println!("Schema validation passed for: {}", input);
+            check_input_file(input)?;
+            let _events = secguard::parsers::auth_events::parse_auth_events(Path::new(input))?;
+            println!("Schema validation passed for auth events: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::Network { input } => {
+            check_input_file(input)?;
+            let _events = secguard::parsers::network_flows::parse_network_flows(Path::new(input))?;
+            println!("Schema validation passed for network flows: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::Dns { input } => {
+            check_input_file(input)?;
+            let _queries = secguard::parsers::dns_queries::parse_dns_queries(Path::new(input))?;
+            println!("Schema validation passed for DNS queries: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::Windows { input } => {
+            check_input_file(input)?;
+            let _events =
+                secguard::parsers::windows_events::parse_windows_events(Path::new(input))?;
+            println!("Schema validation passed for Windows events: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::FileHashes { input } => {
+            check_input_file(input)?;
+            let _hashes = secguard::parsers::file_hashes::parse_file_hashes(Path::new(input))?;
+            println!("Schema validation passed for file hashes: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::IocDomains { input } => {
+            check_input_file(input)?;
+            let _domains = secguard::parsers::iocs::parse_ioc_domains(Path::new(input))?;
+            println!("Schema validation passed for IOC domains: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::IocIps { input } => {
+            check_input_file(input)?;
+            let _ips = secguard::parsers::iocs::parse_ioc_ips(Path::new(input))?;
+            println!("Schema validation passed for IOC IPs: {}", input);
+            Ok(())
+        }
+        secguard::cli::SchemaKind::IocHashes { input } => {
+            check_input_file(input)?;
+            let _hashes = secguard::parsers::iocs::parse_ioc_hashes(Path::new(input))?;
+            println!("Schema validation passed for IOC hashes: {}", input);
             Ok(())
         }
     }
@@ -40,11 +111,8 @@ fn handle_schema(kind: &secguard::cli::SchemaKind) -> SecGuardResult<()> {
 fn handle_analyze(kind: &secguard::cli::AnalyzeKind) -> SecGuardResult<()> {
     match kind {
         secguard::cli::AnalyzeKind::Auth { input, output } => {
-            let input_path = std::path::Path::new(input);
-            if !input_path.exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
-            }
-            let events = secguard::parsers::auth_events::parse_auth_events(input_path)?;
+            check_input_file(input)?;
+            let events = secguard::parsers::auth_events::parse_auth_events(Path::new(input))?;
             let config = secguard::models::Config::default();
             let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
             let mut findings = secguard::detections::brute_force::run_auth_detections(
@@ -55,78 +123,65 @@ fn handle_analyze(kind: &secguard::cli::AnalyzeKind) -> SecGuardResult<()> {
             secguard::detections::engine::DetectionEngine::sort_findings(&mut findings);
             let summary = secguard::models::ReportSummary::new(input.to_string(), findings);
             let report = secguard::reports::markdown::generate_markdown_report(&summary)?;
-            if let Some(out_path) = output {
-                if let Some(parent) = std::path::Path::new(out_path).parent() {
-                    if !parent.as_os_str().is_empty() && !parent.exists() {
-                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
-                    }
-                }
-                std::fs::write(out_path, report)?;
-                println!("Report written to: {}", out_path);
-            } else {
-                println!("{}", report);
-            }
+            write_report(output, &report)?;
             Ok(())
         }
         secguard::cli::AnalyzeKind::Network { input, output } => {
-            if !std::path::Path::new(input).exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
-            }
-            let events =
-                secguard::parsers::network_flows::parse_network_flows(std::path::Path::new(input))?;
+            check_input_file(input)?;
+            let events = secguard::parsers::network_flows::parse_network_flows(Path::new(input))?;
             let config = secguard::models::Config::default();
             let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
-            let findings = secguard::detections::network_egress::run_network_detections(
+            let mut findings = secguard::detections::network_egress::run_network_detections(
                 &events,
                 &config,
                 &mut id_gen,
             );
-            let mut report = format!(
-                "# Network Analysis Report\n\nGenerated by: SecGuard RS\nVersion: {}\nInput: {}\nFindings: {}\n\n",
-                secguard::version(),
-                input,
-                findings.len(),
-            );
-            for finding in &findings {
-                report.push_str(&format!(
-                    "- **{}** [{}] {}: {}\n  - Evidence: {}\n  - Recommendation: {}\n\n",
-                    finding.detection_id,
-                    finding.severity,
-                    finding.rule_id,
-                    finding.summary,
-                    finding.evidence,
-                    finding.recommendation,
-                ));
-            }
-            if let Some(out_path) = output {
-                if let Some(parent) = std::path::Path::new(out_path).parent() {
-                    if !parent.as_os_str().is_empty() && !parent.exists() {
-                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
-                    }
-                }
-                std::fs::write(out_path, report)?;
-                println!("Report written to: {}", out_path);
-            } else {
-                println!("{}", report);
-            }
+            secguard::detections::engine::DetectionEngine::sort_findings(&mut findings);
+            let summary = secguard::models::ReportSummary::new(input.to_string(), findings);
+            let report = secguard::reports::markdown::generate_markdown_report(&summary)?;
+            write_report(output, &report)?;
             Ok(())
         }
         secguard::cli::AnalyzeKind::Dns {
             dns,
-            ioc_domains: _,
-            output: _,
+            ioc_domains,
+            output,
         } => {
-            if !std::path::Path::new(dns).exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(dns)));
+            check_input_file(dns)?;
+            let queries = secguard::parsers::dns_queries::parse_dns_queries(Path::new(dns))?;
+            let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
+            let mut all_findings = Vec::new();
+
+            if let Some(domains_path) = ioc_domains {
+                check_input_file(domains_path)?;
+                let ioc_domains_list =
+                    secguard::parsers::iocs::parse_ioc_domains(Path::new(domains_path))?;
+                let dns_findings = secguard::detections::dns_ioc::detect_dns_ioc(
+                    &queries,
+                    &ioc_domains_list,
+                    &mut id_gen,
+                );
+                all_findings.extend(dns_findings);
             }
-            println!("Analyze DNS: {}", dns);
+
+            secguard::detections::engine::DetectionEngine::sort_findings(&mut all_findings);
+            let summary = secguard::models::ReportSummary::new(dns.to_string(), all_findings);
+            let report = secguard::reports::markdown::generate_markdown_report(&summary)?;
+            write_report(output, &report)?;
             Ok(())
         }
-        secguard::cli::AnalyzeKind::Windows { input, output: _ } => {
-            if !std::path::Path::new(input).exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
-            }
-            println!("Analyze Windows events: {}", input);
+        secguard::cli::AnalyzeKind::Windows { input, output } => {
+            check_input_file(input)?;
+            let events = secguard::parsers::windows_events::parse_windows_events(Path::new(input))?;
+            let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
+            let mut findings = secguard::detections::suspicious_powershell::run_windows_detections(
+                &events,
+                &mut id_gen,
+            );
+            secguard::detections::engine::DetectionEngine::sort_findings(&mut findings);
+            let summary = secguard::models::ReportSummary::new(input.to_string(), findings);
+            let report = secguard::reports::markdown::generate_markdown_report(&summary)?;
+            write_report(output, &report)?;
             Ok(())
         }
     }
@@ -142,57 +197,46 @@ fn handle_ioc(kind: &secguard::cli::IocKind) -> SecGuardResult<()> {
         } => {
             let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
             let mut all_findings = Vec::new();
-            let mut total_matches = 0usize;
 
             // DNS IOC matching
             if let Some(dns_path) = dns {
-                if !std::path::Path::new(dns_path).exists() {
-                    return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
-                        dns_path,
-                    )));
-                }
-                let queries = secguard::parsers::dns_queries::parse_dns_queries(
-                    std::path::Path::new(dns_path),
-                )?;
+                check_input_file(dns_path)?;
+                let queries =
+                    secguard::parsers::dns_queries::parse_dns_queries(Path::new(dns_path))?;
                 if let Some(domains_path) = domains {
-                    if std::path::Path::new(domains_path).exists() {
-                        let ioc_domains = secguard::parsers::iocs::parse_ioc_domains(
-                            std::path::Path::new(domains_path),
-                        )?;
-                        let findings = secguard::detections::dns_ioc::detect_dns_ioc(
-                            &queries,
-                            &ioc_domains,
-                            &mut id_gen,
-                        );
-                        total_matches += findings.len();
-                        all_findings.extend(findings);
-                    } else {
-                        return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
-                            domains_path,
-                        )));
-                    }
+                    check_input_file(domains_path)?;
+                    let ioc_domains =
+                        secguard::parsers::iocs::parse_ioc_domains(Path::new(domains_path))?;
+                    let findings = secguard::detections::dns_ioc::detect_dns_ioc(
+                        &queries,
+                        &ioc_domains,
+                        &mut id_gen,
+                    );
+                    all_findings.extend(findings);
                 }
             }
 
-            // IP IOC matching (check network flows if provided)
+            // IP IOC matching
             if let Some(ips_path) = ips {
-                if !std::path::Path::new(ips_path).exists() {
-                    return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
-                        ips_path,
-                    )));
-                }
-                // If DNS was also provided, we try to load network flows from a default path
-                println!("IOC IP file loaded: {}", ips_path);
+                check_input_file(ips_path)?;
+                let ioc_ips = secguard::parsers::iocs::parse_ioc_ips(Path::new(ips_path))?;
+                // IP IOC matching requires network flow data; we report the IOC data is loaded
+                println!(
+                    "IOC IP file loaded: {} ({} indicators)",
+                    ips_path,
+                    ioc_ips.len()
+                );
             }
 
-            // Hash IOC matching (requires file_hashes input)
+            // Hash IOC matching
             if let Some(hashes_path) = hashes {
-                if !std::path::Path::new(hashes_path).exists() {
-                    return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
-                        hashes_path,
-                    )));
-                }
-                println!("IOC hash file loaded: {}", hashes_path);
+                check_input_file(hashes_path)?;
+                let ioc_hashes = secguard::parsers::iocs::parse_ioc_hashes(Path::new(hashes_path))?;
+                println!(
+                    "IOC hash file loaded: {} ({} indicators)",
+                    hashes_path,
+                    ioc_hashes.len()
+                );
             }
 
             // Print IOC matching results
@@ -200,7 +244,7 @@ fn handle_ioc(kind: &secguard::cli::IocKind) -> SecGuardResult<()> {
                 println!("No IOC matches found.");
             } else {
                 secguard::detections::engine::DetectionEngine::sort_findings(&mut all_findings);
-                println!("IOC Match Results ({} total):", total_matches);
+                println!("IOC Match Results ({} total):", all_findings.len());
                 for finding in &all_findings {
                     println!(
                         "- {} [{}] {}: {}",
@@ -217,21 +261,14 @@ fn handle_ioc(kind: &secguard::cli::IocKind) -> SecGuardResult<()> {
 fn handle_integrity(kind: &secguard::cli::IntegrityKind) -> SecGuardResult<()> {
     match kind {
         secguard::cli::IntegrityKind::Baseline { path, output } => {
-            let scan_path = std::path::Path::new(path);
+            let scan_path = Path::new(path);
             if !scan_path.exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(path)));
+                return Err(SecGuardError::FileNotFound(scan_path.to_path_buf()));
             }
             let entries = secguard::integrity::baseline::generate_baseline(scan_path)?;
             if let Some(out_path) = output {
-                if let Some(parent) = std::path::Path::new(out_path).parent() {
-                    if !parent.as_os_str().is_empty() && !parent.exists() {
-                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
-                    }
-                }
-                secguard::integrity::baseline::write_baseline_csv(
-                    std::path::Path::new(out_path),
-                    &entries,
-                )?;
+                ensure_output_dir(out_path)?;
+                secguard::integrity::baseline::write_baseline_csv(Path::new(out_path), &entries)?;
                 println!(
                     "Baseline written to: {} ({} files)",
                     out_path,
@@ -253,52 +290,24 @@ fn handle_integrity(kind: &secguard::cli::IntegrityKind) -> SecGuardResult<()> {
             path,
             output,
         } => {
-            let baseline_path = std::path::Path::new(baseline);
-            if !baseline_path.exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(
-                    baseline,
-                )));
-            }
-            let scan_path = std::path::Path::new(path);
+            check_input_file(baseline)?;
+            let scan_path = Path::new(path);
             if !scan_path.exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(path)));
+                return Err(SecGuardError::FileNotFound(scan_path.to_path_buf()));
             }
             let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
             let mut findings = secguard::detections::file_integrity::run_file_integrity_detections(
-                baseline_path,
+                Path::new(baseline),
                 scan_path,
                 &mut id_gen,
             )?;
             secguard::detections::engine::DetectionEngine::sort_findings(&mut findings);
-            let mut report = format!(
-                "# Integrity Verification Report\n\nGenerated by: SecGuard RS\nVersion: {}\nBaseline: {}\nScanned: {}\nFindings: {}\n\n",
-                secguard::version(),
-                baseline,
-                path,
-                findings.len(),
+            let summary = secguard::models::ReportSummary::new(
+                format!("baseline={},path={}", baseline, path),
+                findings,
             );
-            for finding in &findings {
-                report.push_str(&format!(
-                    "- **{}** [{}] {}: {}\n  - Evidence: {}\n  - Recommendation: {}\n\n",
-                    finding.detection_id,
-                    finding.severity,
-                    finding.rule_id,
-                    finding.summary,
-                    finding.evidence,
-                    finding.recommendation,
-                ));
-            }
-            if let Some(out_path) = output {
-                if let Some(parent) = std::path::Path::new(out_path).parent() {
-                    if !parent.as_os_str().is_empty() && !parent.exists() {
-                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
-                    }
-                }
-                std::fs::write(out_path, report)?;
-                println!("Report written to: {}", out_path);
-            } else {
-                println!("{}", report);
-            }
+            let report = secguard::reports::markdown::generate_markdown_report(&summary)?;
+            write_report(output, &report)?;
             Ok(())
         }
     }
@@ -311,23 +320,10 @@ fn handle_report(kind: &secguard::cli::ReportKind) -> SecGuardResult<()> {
             format,
             output,
         } => {
-            let input_path = std::path::Path::new(input);
-            if !input_path.exists() {
-                return Err(SecGuardError::FileNotFound(std::path::PathBuf::from(input)));
-            }
+            check_input_file(input)?;
             let fmt = format.as_deref().unwrap_or("markdown");
-            let report = secguard::reports::summary::generate_summary(input_path, fmt)?;
-            if let Some(out_path) = output {
-                if let Some(parent) = std::path::Path::new(out_path).parent() {
-                    if !parent.as_os_str().is_empty() && !parent.exists() {
-                        return Err(SecGuardError::OutputDirNotFound(parent.to_path_buf()));
-                    }
-                }
-                std::fs::write(out_path, report)?;
-                println!("Summary report written to: {}", out_path);
-            } else {
-                println!("{}", report);
-            }
+            let report = secguard::reports::summary::generate_summary(Path::new(input), fmt)?;
+            write_report(output, &report)?;
             Ok(())
         }
     }

@@ -6,7 +6,7 @@ pub fn generate_csv_report(summary: &ReportSummary) -> io::Result<String> {
     let mut wtr = csv::Writer::from_writer(vec![]);
 
     // Write detections.csv header
-    wtr.write_record(&[
+    wtr.write_record([
         "detection_id",
         "timestamp",
         "rule_id",
@@ -16,10 +16,10 @@ pub fn generate_csv_report(summary: &ReportSummary) -> io::Result<String> {
         "evidence",
         "recommendation",
     ])
-    .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+    .map_err(|e| io::Error::other(e.to_string()))?;
 
     for f in &summary.findings {
-        wtr.write_record(&[
+        wtr.write_record([
             &f.detection_id,
             &f.timestamp,
             &f.rule_id,
@@ -29,15 +29,14 @@ pub fn generate_csv_report(summary: &ReportSummary) -> io::Result<String> {
             &f.evidence,
             &f.recommendation,
         ])
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        .map_err(|e| io::Error::other(e.to_string()))?;
     }
 
-    wtr.flush()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+    wtr.flush().map_err(|e| io::Error::other(e.to_string()))?;
 
     let data = wtr
         .into_inner()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        .map_err(|e| io::Error::other(e.to_string()))?;
     let csv_string = String::from_utf8(data)
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
     Ok(csv_string)
@@ -92,7 +91,9 @@ mod tests {
         }];
         let summary = ReportSummary::new("test.csv".to_string(), findings);
         let csv = generate_csv_report(&summary).unwrap();
-        assert!(csv.contains("detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation"));
+        assert!(csv.contains(
+            "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation"
+        ));
     }
 
     #[test]

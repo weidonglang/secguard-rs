@@ -3,8 +3,8 @@ use std::io;
 
 /// Generate a JSON report string from a ReportSummary.
 pub fn generate_json_report(summary: &ReportSummary) -> io::Result<String> {
-    let json = serde_json::to_string_pretty(summary)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+    let json =
+        serde_json::to_string_pretty(summary).map_err(|e| io::Error::other(e.to_string()))?;
     Ok(json)
 }
 
