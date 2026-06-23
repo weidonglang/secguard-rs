@@ -64,20 +64,30 @@ if (-not (Test-Path $BaselineOutput)) {
 }
 Write-Host "PASSED: integrity baseline generates baseline file" -ForegroundColor Green
 
-# Test 4: schema check
-Write-Host "`n=== Smoke Test 4: secguard schema check ===" -ForegroundColor Cyan
+# Test 4: schema check (compatibility)
+Write-Host "`n=== Smoke Test 4: secguard check --kind auth --input ===" -ForegroundColor Cyan
 $SchemaInput = Join-Path $ProjectRoot "examples"
 $SchemaInput = Join-Path $SchemaInput "auth_events.csv"
+$Output = & $ExePath check --kind auth --input $SchemaInput 2>&1
+$LASTEXITCODE = $global:LASTEXITCODE
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "FAILED: check --kind auth returned exit code $LASTEXITCODE" -ForegroundColor Red
+    exit 1
+}
+Write-Host "PASSED: check --kind auth validates auth_events.csv" -ForegroundColor Green
+
+# Test 5: schema auth (existing subcommand)
+Write-Host "`n=== Smoke Test 5: secguard schema auth ===" -ForegroundColor Cyan
 $Output = & $ExePath schema auth --input $SchemaInput 2>&1
 $LASTEXITCODE = $global:LASTEXITCODE
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "FAILED: schema check returned exit code $LASTEXITCODE" -ForegroundColor Red
+    Write-Host "FAILED: schema auth returned exit code $LASTEXITCODE" -ForegroundColor Red
     exit 1
 }
-Write-Host "PASSED: schema check validates auth_events.csv" -ForegroundColor Green
+Write-Host "PASSED: schema auth validates auth_events.csv" -ForegroundColor Green
 
-# Test 5: ioc match
-Write-Host "`n=== Smoke Test 5: secguard ioc match ===" -ForegroundColor Cyan
+# Test 6: ioc match (without --network-flows to test basic flow)
+Write-Host "`n=== Smoke Test 6: secguard ioc match ===" -ForegroundColor Cyan
 $DnsInput = Join-Path $ProjectRoot "examples"
 $DnsInput = Join-Path $DnsInput "dns_queries.csv"
 $IpsInput = Join-Path $ProjectRoot "examples"

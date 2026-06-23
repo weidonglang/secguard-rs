@@ -21,6 +21,15 @@ pub enum Commands {
         #[command(subcommand)]
         kind: SchemaKind,
     },
+    /// Check CSV schema by kind (compatibility alias for `schema <kind>`)
+    Check {
+        /// Schema kind: auth, network, dns, windows, file-hashes, ioc-domains, ioc-ips, ioc-hashes
+        #[arg(long)]
+        kind: String,
+        /// Path to CSV file
+        #[arg(long)]
+        input: String,
+    },
 
     /// Analyze security logs for threats
     Analyze {
@@ -159,7 +168,7 @@ pub enum IocKind {
         #[arg(long)]
         hashes: Option<String>,
         /// Path to network_flows.csv (required for IP IOC matching)
-        #[arg(long)]
+        #[arg(long, alias = "network-flows")]
         flows: Option<String>,
         /// Path to file_hashes.csv (required for hash IOC matching)
         #[arg(long)]
