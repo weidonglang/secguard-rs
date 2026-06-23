@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 /// IOC matching, integrity checking, and report generation.
 #[derive(Parser, Debug)]
 #[command(name = "secguard")]
-#[command(version = "1.0.0")]
+#[command(version = "1.0.1")]
 #[command(about = "Defensive cybersecurity CLI for offline analysis")]
 #[command(
     long_about = "SecGuard RS is a defensive Rust cybersecurity CLI for offline log analysis,\nIOC matching, integrity checking, and report generation.\n\nThis tool only processes local files. It does not make network connections,\nscan ports, or execute attack payloads."
@@ -158,6 +158,12 @@ pub enum IocKind {
         /// Path to ioc_hashes.csv
         #[arg(long)]
         hashes: Option<String>,
+        /// Path to network_flows.csv (required for IP IOC matching)
+        #[arg(long)]
+        flows: Option<String>,
+        /// Path to file_hashes.csv (required for hash IOC matching)
+        #[arg(long)]
+        file_hashes: Option<String>,
     },
 }
 

@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        components: clippy, rustfmt
+
+    - name: Check formatting
+      run: cargo fmt -- --check
+
+    - name: Clippy
+      run: cargo clippy --all-targets -- -D warnings
+
+    - name: Build
+      run: cargo build
+
+    - name: Run tests
+      run: cargo test
+
+    - name: Verify version consistency
+      shell: pwsh
+      run: |
+        $version = Get-Content VERSION -Raw | ForEach-Object { $_.Trim() }
+        $cargoVersion = (Select-String -Path Cargo.toml -Pattern '^version = "(.*)"').Matches[0].Groups[1].Value
+        if ($version -ne $cargoVersion) {
+          Write-Host "ERROR: VERSION ($version) != Cargo.toml ($cargoVersion)" -ForegroundColor Red
+          exit 1
+        }
+        Write-Host "Version check passed: $version" -ForegroundColor Green
+
+    - name: Check no network code
+      shell: pwsh
+      run: |
+        $pattern = 'std::net|TcpStream|UdpSocket|reqwest|hyper|tokio::net'
+        $matches = Select-String -Path src/**/*.rs -Pattern $pattern
+        if ($matches) {
+          Write-Host "ERROR: Network code found!" -ForegroundColor Red
+          $matches | ForEach-Object { Write-Host $_.Path $_.LineNumber $_.Line }
+          exit 1
+        }
+        Write-Host "No network code detected. Pass." -ForegroundColor Green
+
+    - name: Check no artifacts committed
+      shell: pwsh
+      run: |
+        $forbidden = @("*.exe", "*.zip", "*.pdb", "*.dll")
+        $errors = @()
+        foreach ($pattern in $forbidden) {
+          $files = git ls-files $pattern
+          if ($files) {
+            $errors += $files
+          }
+        }
+        if ($errors.Count -gt 0) {
+          Write-Host "ERROR: Forbidden files tracked in git:" -ForegroundColor Red
+          $errors | ForEach-Object { Write-Host "  $_" }
+          exit 1
+        }
+        Write-Host "No artifacts committed. Pass." -ForegroundColor Green

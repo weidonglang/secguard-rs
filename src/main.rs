@@ -194,6 +194,8 @@ fn handle_ioc(kind: &secguard::cli::IocKind) -> SecGuardResult<()> {
             ips,
             domains,
             hashes,
+            flows,
+            file_hashes,
         } => {
             let mut id_gen = secguard::detections::engine::DetectionIdGenerator::new();
             let mut all_findings = Vec::new();
@@ -216,27 +218,52 @@ fn handle_ioc(kind: &secguard::cli::IocKind) -> SecGuardResult<()> {
                 }
             }
 
-            // IP IOC matching
+            // IP IOC matching (requires network flow data)
             if let Some(ips_path) = ips {
                 check_input_file(ips_path)?;
                 let ioc_ips = secguard::parsers::iocs::parse_ioc_ips(Path::new(ips_path))?;
-                // IP IOC matching requires network flow data; we report the IOC data is loaded
-                println!(
-                    "IOC IP file loaded: {} ({} indicators)",
-                    ips_path,
-                    ioc_ips.len()
-                );
+                if let Some(flows_path) = flows {
+                    check_input_file(flows_path)?;
+                    let flow_events = secguard::parsers::network_flows::parse_network_flows(
+                        Path::new(flows_path),
+                    )?;
+                    let findings = secguard::detections::ip_ioc::detect_ip_ioc(
+                        &flow_events,
+                        &ioc_ips,
+                        &mut id_gen,
+                    );
+                    all_findings.extend(findings);
+                } else {
+                    println!(
+                        "IOC IP file loaded: {} ({} indicators). Use --flows to match against network flows.",
+                        ips_path,
+                        ioc_ips.len()
+                    );
+                }
             }
 
-            // Hash IOC matching
+            // Hash IOC matching (requires file hash data)
             if let Some(hashes_path) = hashes {
                 check_input_file(hashes_path)?;
                 let ioc_hashes = secguard::parsers::iocs::parse_ioc_hashes(Path::new(hashes_path))?;
-                println!(
-                    "IOC hash file loaded: {} ({} indicators)",
-                    hashes_path,
-                    ioc_hashes.len()
-                );
+                if let Some(file_hashes_path) = file_hashes {
+                    check_input_file(file_hashes_path)?;
+                    let file_hash_entries = secguard::parsers::file_hashes::parse_file_hashes(
+                        Path::new(file_hashes_path),
+                    )?;
+                    let findings = secguard::detections::hash_ioc::detect_hash_ioc(
+                        &file_hash_entries,
+                        &ioc_hashes,
+                        &mut id_gen,
+                    );
+                    all_findings.extend(findings);
+                } else {
+                    println!(
+                        "IOC hash file loaded: {} ({} indicators). Use --file-hashes to match against file hashes.",
+                        hashes_path,
+                        ioc_hashes.len()
+                    );
+                }
             }
 
             // Print IOC matching results

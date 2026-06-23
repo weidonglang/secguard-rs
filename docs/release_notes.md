@@ -1,87 +1,68 @@
-# Release Notes
+# SecGuard RS Release Notes
 
-## v1.0.0 (2026-06-23)
+## v1.0.1 (Current)
 
-### Overview
+### Bug Fixes
 
-SecGuard RS v1.0.0 is the initial release of a defensive Rust cybersecurity CLI tool for offline log analysis, IOC matching, file integrity verification, and security report generation.
+- **IOC IP and Hash matching integrated into CLI**: The `secguard ioc match` command now supports IP IOC matching (via `--flows` flag) and hash IOC matching (via `--file-hashes` flag), enabling comprehensive IOC analysis in a single command.
+- **IOC finding timestamps use source data time**: All IOC detection findings now correctly use timestamps from the original log data rather than the current system time, ensuring deterministic and reproducible detection results.
+- **CLI help text alignment with schema field names**: CLI argument descriptions and help text now consistently use the same field names as defined in the global data schema (`data_dictionary.md`), reducing confusion for users.
+
+### Chores
+
+- Added GitHub Actions CI workflow for automated testing on push/PR.
+- Updated all version references to 1.0.1 across `Cargo.toml`, `README.md`, `docs/user_guide.md`, `cli.rs`, and `docs/release_notes.md`.
+
+## v1.0.0 (Initial Release)
 
 ### Features
 
-- **Authentication Log Analysis**
-  - SG-AUTH-001: Brute Force Login detection
-  - SG-AUTH-002: Password Spray detection
+- **Schema Validation**: Validate CSV files against the defined data dictionary schemas for all supported log types.
+- **Authentication Log Analysis**: Detect brute force attacks (SG-AUTH-001) and password spray attacks (SG-AUTH-002) from authentication event logs.
+- **Network Flow Analysis**: Identify blocked outbound bursts (SG-NET-001) and high data egress events (SG-NET-002).
+- **DNS Query Analysis**: Match DNS queries against local IOC domain indicators (SG-DNS-001).
+- **Windows Event Analysis**: Detect suspicious PowerShell encoded commands in Windows event logs (SG-WIN-001) via offline string matching.
+- **IOC Matching**: Match network flows against IOC IPs (SG-IP-001) and file hashes against IOC hashes (SG-HASH-001).
+- **File Integrity Monitoring**: Generate SHA256 baselines (SG-FIM-001) and verify file integrity, detecting modified or missing files (SG-FIM-002).
+- **Report Generation**: Output findings in Markdown, JSON, and CSV formats with stable sorting and consistent metadata.
+- **Risk Scoring**: Built-in risk scoring model using weighted severity-based evaluation.
 
-- **Network Traffic Analysis**
-  - SG-NET-001: Blocked Outbound Burst detection
-  - SG-NET-002: High Data Egress detection
+### Detection Rules
 
-- **DNS Query Analysis**
-  - SG-DNS-001: IOC Domain Match against local domain lists
+| Rule ID | Description | Severity |
+|---------|-------------|----------|
+| SG-AUTH-001 | Brute Force Login | high |
+| SG-AUTH-002 | Password Spray | high |
+| SG-WIN-001 | Suspicious PowerShell Encoded Command | medium |
+| SG-NET-001 | Blocked Outbound Burst | medium |
+| SG-NET-002 | High Data Egress | low |
+| SG-DNS-001 | IOC Domain Match | high |
+| SG-IP-001 | IOC IP Match | high |
+| SG-HASH-001 | IOC Hash Match | critical |
+| SG-FIM-001 | File Modified | high |
+| SG-FIM-002 | File Missing | high |
 
-- **Windows Event Analysis**
-  - SG-WIN-001: Suspicious PowerShell Encoded Command detection
+### Supported Data Formats
 
-- **IOC Matching**
-  - SG-IP-001: IOC IP Match against local IP lists
-  - SG-HASH-001: IOC Hash Match against local hash lists
+- CSV: Authentication events, network flows, DNS queries, Windows events, file hashes, IOC indicators
+- JSON: Configuration and rule definitions
+- Markdown: Human-readable reports with severity indicators and remediation recommendations
 
-- **File Integrity Monitoring**
-  - SG-FIM-001: File Modified detection (SHA256 comparison)
-  - SG-FIM-002: File Missing detection
+### Security Boundaries
 
-- **Report Generation**
-  - Markdown reports with severity indicators and recommendations
-  - JSON reports for machine processing
-  - CSV findings for spreadsheet compatibility
-  - Summary reports with risk scoring
+SecGuard RS is strictly a **defensive** cybersecurity tool. It:
+- Processes only local files
+- Performs offline pattern matching
+- Generates SHA256 file hashes locally
+- Evaluates detection rules against local data
+- Does NOT make network connections
+- Does NOT scan ports or vulnerabilities
+- Does NOT execute payloads or commands
+- Does NOT bypass security controls
+- Does NOT download threat intelligence
 
-### CLI Commands
+### System Requirements
 
-- `secguard --help` — Display help
-- `secguard schema check` — Validate CSV schema
-- `secguard analyze auth` — Analyze authentication logs
-- `secguard analyze network` — Analyze network flow logs
-- `secguard analyze dns` — Analyze DNS query logs
-- `secguard analyze windows` — Analyze Windows event logs
-- `secguard ioc match` — Match indicators of compromise
-- `secguard integrity baseline` — Generate SHA256 baseline
-- `secguard integrity verify` — Verify file integrity against baseline
-- `secguard report summarize` — Generate summary reports
-
-### Known Limitations
-
-- Offline analysis only — no real-time monitoring
-- Windows event log analysis requires exported CSV files
-- IOC lists must be prepared locally (no automatic updates)
-- Network traffic analysis supports PCAP-derived CSV only
-
-### Installation
-
-```bash
-# Build from source
-git clone https://github.com/weidonglang/secguard-rs.git
-cd secguard-rs
-cargo build --release
-
-# Binary location: target/release/secguard.exe
-```
-
-### Dependencies
-
-- Rust 1.70+
-- clap 4.x (CLI argument parsing)
-- serde/serde_json 1.x (serialization)
-- csv 1.x (CSV parsing)
-- chrono 0.4.x (timestamp handling)
-- sha2 0.10.x (SHA256 hashing)
-- walkdir 2.x (directory traversal)
-- thiserror 1.x (error handling)
-
-### Security
-
-This release contains strictly defensive functionality only:
-- No network connections (no std::net, reqwest, hyper, tokio::net)
-- No port scanning or vulnerability exploitation
-- No payload generation or command execution
-- Local file processing only
+- Rust 1.70+ (for building from source)
+- Windows, macOS, or Linux
+- No external database or network services required

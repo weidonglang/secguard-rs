@@ -1,6 +1,5 @@
 use crate::detections::engine::DetectionIdGenerator;
 use crate::models::{Detection, IocIp, NetworkFlow};
-use chrono::Utc;
 
 /// Rule ID for IOC IP match detection.
 pub const SG_IP_001: &str = "SG-IP-001";
@@ -8,7 +7,7 @@ pub const SG_IP_001: &str = "SG-IP-001";
 /// Detect network flows with destination IPs matching known malicious IPs (SG-IP-001).
 ///
 /// Matches are exact IP string matches. Each match generates a severity level
-/// based on the IOC severity.
+/// based on the IOC severity. Timestamps are taken from the source network flow data.
 pub fn detect_ip_ioc(
     flows: &[NetworkFlow],
     ioc_ips: &[IocIp],
@@ -25,13 +24,13 @@ pub fn detect_ip_ioc(
         .collect();
 
     let mut findings = Vec::new();
-    let now = Utc::now();
 
     for flow in flows {
         if let Some(ioc) = ioc_ip_set.get(flow.dst_ip.as_str()) {
             let severity = crate::models::Severity::from_string(&ioc.severity)
                 .unwrap_or(crate::models::Severity::High);
-            let timestamp = now.format("%Y-%m-%dT%H:%M:%SZ").to_string();
+            // Use source flow timestamp instead of current system time
+            let timestamp = flow.timestamp.format("%Y-%m-%dT%H:%M:%SZ").to_string();
 
             findings.push(Detection {
                 detection_id: id_gen.generate(SG_IP_001),
@@ -61,12 +60,12 @@ pub fn detect_ip_ioc(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::TimeZone;
+    use chrono::{TimeZone, Utc};
 
     fn make_flow(dst_ip: &str) -> NetworkFlow {
         NetworkFlow {
             flow_id: "F001".to_string(),
-            timestamp: Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap(),
+            timestamp: Utc.with_ymd_and_hms(2026, 2, 10, 14, 22, 0).unwrap(),
             src_host: "host-01".to_string(),
             src_ip: "10.0.0.1".to_string(),
             src_port: 49152,
@@ -97,6 +96,8 @@ mod tests {
         assert_eq!(findings.len(), 1);
         assert!(findings[0].rule_id.contains("SG-IP-001"));
         assert_eq!(findings[0].severity, "high");
+        // Verify timestamp is from source data, not current time
+        assert!(findings[0].timestamp.starts_with("2026-02-10"));
     }
 
     #[test]
