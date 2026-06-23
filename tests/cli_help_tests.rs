@@ -91,7 +91,7 @@ fn test_cli_version() {
         .expect("Failed to run secguard --version");
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("1.0.0"));
+    assert!(stdout.contains("1.0.1"));
 }
 
 #[test]

@@ -1,6 +1,5 @@
 use crate::detections::engine::DetectionIdGenerator;
 use crate::models::{Detection, DnsQuery, IocDomain};
-use chrono::Utc;
 
 /// Rule ID for IOC domain match detection.
 pub const SG_DNS_001: &str = "SG-DNS-001";
@@ -8,6 +7,7 @@ pub const SG_DNS_001: &str = "SG-DNS-001";
 /// Detect DNS queries matching known malicious domains (SG-DNS-001).
 ///
 /// Matches are case-insensitive. Each match generates a `high` severity finding.
+/// Timestamps are taken from the source DNS query data, not the current system time.
 pub fn detect_dns_ioc(
     queries: &[DnsQuery],
     ioc_domains: &[IocDomain],
@@ -26,8 +26,8 @@ pub fn detect_dns_ioc(
             if query_lower == ioc_lower || query_lower.ends_with(&format!(".{}", ioc_lower)) {
                 let severity = crate::models::Severity::from_string(&ioc.severity)
                     .unwrap_or(crate::models::Severity::High);
-                let now = Utc::now();
-                let timestamp = now.format("%Y-%m-%dT%H:%M:%SZ").to_string();
+                // Use source query timestamp instead of current system time
+                let timestamp = query.timestamp.format("%Y-%m-%dT%H:%M:%SZ").to_string();
 
                 findings.push(Detection {
                     detection_id: id_gen.generate(SG_DNS_001),
@@ -57,12 +57,12 @@ pub fn detect_dns_ioc(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::TimeZone;
+    use chrono::{TimeZone, Utc};
 
     fn make_query(query_str: &str) -> DnsQuery {
         DnsQuery {
             query_id: "Q001".to_string(),
-            timestamp: Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap(),
+            timestamp: Utc.with_ymd_and_hms(2026, 1, 15, 8, 30, 0).unwrap(),
             host: "host-01".to_string(),
             user: "user1".to_string(),
             query: query_str.to_string(),
@@ -89,6 +89,8 @@ mod tests {
         assert_eq!(findings.len(), 1);
         assert!(findings[0].rule_id.contains("SG-DNS-001"));
         assert_eq!(findings[0].severity, "high");
+        // Verify timestamp is from source data, not current time
+        assert!(findings[0].timestamp.starts_with("2026-01-15"));
     }
 
     #[test]

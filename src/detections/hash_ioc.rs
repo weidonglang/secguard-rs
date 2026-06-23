@@ -1,6 +1,5 @@
 use crate::detections::engine::DetectionIdGenerator;
 use crate::models::{Detection, FileHash, IocHash};
-use chrono::Utc;
 
 /// Rule ID for IOC hash match detection.
 pub const SG_HASH_001: &str = "SG-HASH-001";
@@ -8,7 +7,7 @@ pub const SG_HASH_001: &str = "SG-HASH-001";
 /// Detect file hashes matching known malicious hashes (SG-HASH-001).
 ///
 /// Matches are exact SHA256 string matches. Each match generates a severity level
-/// based on the IOC severity.
+/// based on the IOC severity. Timestamps are taken from the source file hash data.
 pub fn detect_hash_ioc(
     file_hashes: &[FileHash],
     ioc_hashes: &[IocHash],
@@ -25,13 +24,13 @@ pub fn detect_hash_ioc(
         .collect();
 
     let mut findings = Vec::new();
-    let now = Utc::now();
 
     for fh in file_hashes {
         if let Some(ioc) = ioc_hash_set.get(fh.sha256.as_str()) {
             let severity = crate::models::Severity::from_string(&ioc.severity)
                 .unwrap_or(crate::models::Severity::Critical);
-            let timestamp = now.format("%Y-%m-%dT%H:%M:%SZ").to_string();
+            // Use source file hash modified_utc as timestamp instead of current system time
+            let timestamp = fh.modified_utc.clone();
 
             findings.push(Detection {
                 detection_id: id_gen.generate(SG_HASH_001),
@@ -64,7 +63,7 @@ mod tests {
             path: path.to_string(),
             sha256: sha256.to_string(),
             size_bytes: 1024,
-            modified_utc: "2026-01-01T00:00:00Z".to_string(),
+            modified_utc: "2026-03-05T10:15:30Z".to_string(),
         }
     }
 
@@ -91,6 +90,8 @@ mod tests {
         assert_eq!(findings.len(), 1);
         assert!(findings[0].rule_id.contains("SG-HASH-001"));
         assert_eq!(findings[0].severity, "critical");
+        // Verify timestamp is from source data, not current time
+        assert!(findings[0].timestamp.starts_with("2026-03-05"));
     }
 
     #[test]

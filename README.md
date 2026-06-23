@@ -1,4 +1,4 @@
-# SecGuard RS v1.0.0
+# SecGuard RS v1.0.1
 
 *A defensive Rust cybersecurity CLI for offline log analysis, IOC matching, integrity checking, and report generation.*
 
@@ -16,7 +16,7 @@ SecGuard RS is a **defensive** cybersecurity command-line tool. It operates excl
 
 ## Security Boundaries
 
-This tool is designed for **defensive security analysis only** (version: 1.0.0). It:
+This tool is designed for **defensive security analysis only** (version: 1.0.1). It:
 
 - ✅ Processes only local CSV/JSON files
 - ✅ Performs offline pattern matching
@@ -110,7 +110,7 @@ cargo build --release
 powershell -ExecutionPolicy Bypass -File scripts/package_release.ps1
 ```
 
-The packaged release will be at `dist/secguard-rs-v1.0.0.zip`.
+The packaged release will be at `dist/secguard-rs-v1.0.1.zip`.
 
 ## Detection Rules
 
@@ -129,7 +129,7 @@ The packaged release will be at `dist/secguard-rs-v1.0.0.zip`.
 
 ## Version
 
-Current version: **1.0.0**
+Current version: **1.0.1**
 
 All version references across Cargo.toml, README.md, docs/user_guide.md, docs/release_notes.md, and scripts/package_release.ps1 must remain in sync with the `VERSION` file.
 

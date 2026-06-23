@@ -1,6 +1,6 @@
 [package]
 name = "secguard"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 description = "A defensive Rust cybersecurity CLI for offline log analysis, IOC matching, integrity checking, and report generation."
 authors = ["SecGuard RS Contributors"]

@@ -1,8 +1,8 @@
-# SecGuard RS User Guide (v1.0.0)
+# SecGuard RS User Guide (v1.0.1)
 
 ## Overview
 
-SecGuard RS (version 1.0.0) is a defensive Rust cybersecurity CLI tool for offline log analysis, IOC matching, integrity checking, and report generation. It processes only local files and never makes network connections.
+SecGuard RS (version 1.0.1) is a defensive Rust cybersecurity CLI tool for offline log analysis, IOC matching, integrity checking, and report generation. It processes only local files and never makes network connections.
 
 ## Installation
 
@@ -23,7 +23,7 @@ The executable will be at `target/release/secguard.exe`.
 
 ### Download Release
 
-Download the latest `secguard-rs-v1.0.0.zip` from the GitHub Releases page and extract it.
+Download the latest `secguard-rs-v1.0.1.zip` from the GitHub Releases page and extract it.
 
 ## Quick Start
 
