@@ -1,4 +1,4 @@
-# Data Dictionary
+# Data Dictionary (v1.0.0)
 
 ## Global Schema Reference
 

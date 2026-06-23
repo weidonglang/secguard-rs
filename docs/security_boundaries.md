@@ -1,4 +1,4 @@
-# Security Boundaries
+# Security Boundaries (v1.0.0)
 
 ## Project Mandate
 

@@ -1,4 +1,4 @@
-# Detection Rules
+# Detection Rules (v1.0.0)
 
 ## Overview
 
