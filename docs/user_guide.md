@@ -29,7 +29,8 @@ Download the latest `secguard-rs-v1.0.1.zip` from the GitHub Releases page and e
 
 ```bash
 secguard --help
-secguard schema check --kind auth --input examples/auth_events.csv
+secguard check --kind auth --input examples/auth_events.csv
+secguard schema auth --input examples/auth_events.csv
 secguard analyze auth --input examples/auth_events.csv --output reports/auth_report.md
 secguard analyze network --input examples/network_flows.csv --output reports/network_report.md
 secguard analyze dns --dns examples/dns_queries.csv --ioc-domains examples/ioc_domains.csv --output reports/dns_report.md
@@ -125,16 +126,25 @@ secguard analyze windows --input examples/windows_events.csv --output reports/wi
 Match indicators of compromise against local data files.
 
 ```bash
-secguard ioc match --dns examples/dns_queries.csv --ips examples/ioc_ips.csv --domains examples/ioc_domains.csv --hashes examples/ioc_hashes.csv
+# Match DNS queries against IOC domains
+secguard ioc match --dns examples/dns_queries.csv --domains examples/ioc_domains.csv
+
+# Match network flows against IOC IPs
+secguard ioc match --network-flows examples/network_flows.csv --ips examples/ioc_ips.csv
+
+# Match file hashes against IOC hashes
+secguard ioc match --file-hashes examples/file_hashes.csv --hashes examples/ioc_hashes.csv
 ```
 
 **Options:**
-- `--dns`: (Optional) Path to `dns_queries.csv`
-- `--ips`: (Optional) Path to `ioc_ips.csv`
-- `--domains`: (Optional) Path to `ioc_domains.csv`
-- `--hashes`: (Optional) Path to `ioc_hashes.csv`
+- `--dns`: Path to `dns_queries.csv`
+- `--network-flows` / `--flows`: Path to `network_flows.csv`
+- `--file-hashes` / `--file-hash`: Path to `file_hashes.csv`
+- `--ips`: Path to `ioc_ips.csv`
+- `--domains`: Path to `ioc_domains.csv`
+- `--hashes`: Path to `ioc_hashes.csv`
 
-All parameters are optional but at least one should be provided for meaningful analysis.
+At least one pair of data source and IOC file should be provided for meaningful analysis.
 
 **Detections:**
 - SG-DNS-001: IOC Domain Match (DNS queries matching `ioc_domains.csv`)

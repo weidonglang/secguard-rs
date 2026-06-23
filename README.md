@@ -51,8 +51,9 @@ The compiled binary will be at `target/release/secguard` (or `secguard.exe` on W
 # Display help
 cargo run -- --help
 
-# Schema validation
-cargo run -- schema check --kind auth --input examples/auth_events.csv
+# Schema validation (both commands work; check --kind is preferred)
+cargo run -- check --kind auth --input examples/auth_events.csv
+cargo run -- schema auth --input examples/auth_events.csv
 
 # Analyze authentication logs
 cargo run -- analyze auth --input examples/auth_events.csv --output reports/auth_report.md
