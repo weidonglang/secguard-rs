@@ -112,10 +112,30 @@ All parsers, detectors, and reporters must cover:
 | `check_no_artifacts.ps1` | Ensure no exe/zip/target/dist tracked |
 | `check_no_network_code.ps1` | Ensure no network dependencies or code |
 | `count_lines.ps1` | Count total project lines |
-| `build_release.ps1` | Build release binary |
+| `build_release.ps1` | Build release binary (`cargo build --release`) |
 | `smoke_test.ps1` | Quick smoke test of release binary |
-| `package_release.ps1` | Create release zip package |
-| `check_no_artifacts.ps1` | Verify no artifacts in git tracking |
+| `package_release.ps1` | Create release zip package in `dist/` directory |
+
+### Release Packaging
+
+To create a release zip package:
+
+```bash
+# Step 1: Build release binary
+powershell -ExecutionPolicy Bypass -File scripts/build_release.ps1
+
+# Step 2: Create zip package
+powershell -ExecutionPolicy Bypass -File scripts/package_release.ps1
+```
+
+The zip package is created at `dist/secguard-rs-v<version>.zip` and includes:
+- `secguard.exe` — Release binary
+- `README.md`, `LICENSE`, `VERSION`
+- `docs/` — All documentation files
+- `examples/` — Example CSV data files
+- `rules/` — Detection rule JSON files
+
+The `dist/` directory is excluded from git tracking per `.gitignore`.
 
 ## Security Boundaries
 
