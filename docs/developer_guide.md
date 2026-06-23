@@ -1,4 +1,4 @@
-# Developer Guide
+# Developer Guide (v1.0.0)
 
 ## Development Workflow
 
