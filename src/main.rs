@@ -38,6 +38,9 @@ fn main() -> SecGuardResult<()> {
         secguard::cli::Commands::Schema { kind } => {
             handle_schema(kind)?;
         }
+        secguard::cli::Commands::Check { kind, input } => {
+            handle_check(kind, input)?;
+        }
         secguard::cli::Commands::Analyze { kind } => {
             handle_analyze(kind)?;
         }
@@ -106,6 +109,47 @@ fn handle_schema(kind: &secguard::cli::SchemaKind) -> SecGuardResult<()> {
             Ok(())
         }
     }
+}
+
+/// Handle `schema check --kind <kind> --input <path>` compatibility command.
+/// Maps to the same parser logic as the `schema <kind>` subcommand.
+fn handle_check(kind: &str, input: &str) -> SecGuardResult<()> {
+    check_input_file(input)?;
+    let path = Path::new(input);
+    match kind.to_lowercase().as_str() {
+        "auth" => {
+            let _events = secguard::parsers::auth_events::parse_auth_events(path)?;
+        }
+        "network" | "netflow" | "network-flows" => {
+            let _events = secguard::parsers::network_flows::parse_network_flows(path)?;
+        }
+        "dns" => {
+            let _queries = secguard::parsers::dns_queries::parse_dns_queries(path)?;
+        }
+        "windows" => {
+            let _events = secguard::parsers::windows_events::parse_windows_events(path)?;
+        }
+        "file-hashes" | "filehashes" => {
+            let _hashes = secguard::parsers::file_hashes::parse_file_hashes(path)?;
+        }
+        "ioc-domains" | "iocdomains" => {
+            let _domains = secguard::parsers::iocs::parse_ioc_domains(path)?;
+        }
+        "ioc-ips" | "iocips" => {
+            let _ips = secguard::parsers::iocs::parse_ioc_ips(path)?;
+        }
+        "ioc-hashes" | "iochashes" => {
+            let _hashes = secguard::parsers::iocs::parse_ioc_hashes(path)?;
+        }
+        other => {
+            return Err(SecGuardError::InvalidArgument(format!(
+                "Unknown schema kind: {}. Valid kinds: auth, network, dns, windows, file-hashes, ioc-domains, ioc-ips, ioc-hashes",
+                other
+            )));
+        }
+    }
+    println!("Schema validation passed for {}: {}", kind, input);
+    Ok(())
 }
 
 fn handle_analyze(kind: &secguard::cli::AnalyzeKind) -> SecGuardResult<()> {

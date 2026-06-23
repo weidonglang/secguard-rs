@@ -19,6 +19,9 @@ pub enum SecGuardError {
     #[error("CLI argument error: {0}")]
     Cli(String),
 
+    #[error("Invalid argument: {0}")]
+    InvalidArgument(String),
+
     #[error("File not found: {0}")]
     FileNotFound(PathBuf),
 
