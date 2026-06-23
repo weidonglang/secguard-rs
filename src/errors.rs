@@ -46,6 +46,9 @@ pub enum SecGuardError {
     #[error("Parse error: {0}")]
     ParseError(String),
 
+    #[error("Unknown format: {0}, expected one of: markdown, json, csv")]
+    UnknownFormat(String),
+
     #[error("{0}")]
     Msg(String),
 }

@@ -189,7 +189,9 @@ fn test_json_empty_report() {
 #[test]
 fn test_csv_report_has_header() {
     let report = secguard::reports::csv::generate_csv_report(&sample_summary()).unwrap();
-    assert!(report.starts_with("detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation"));
+    assert!(report.starts_with(
+        "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation"
+    ));
 }
 
 #[test]
@@ -215,7 +217,11 @@ fn test_summary_report_from_csv_findings() {
     let dir = TempDir::new().unwrap();
     let path = dir.path().join("findings.csv");
     let mut file = std::fs::File::create(&path).unwrap();
-    writeln!(file, "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation").unwrap();
+    writeln!(
+        file,
+        "detection_id,timestamp,rule_id,severity,entity,summary,evidence,recommendation"
+    )
+    .unwrap();
     writeln!(file, "DET-001,2026-01-01T00:00:00Z,SG-AUTH-001,high,admin@host,Brute force,5 failures,Lock account").unwrap();
     file.flush().unwrap();
 
